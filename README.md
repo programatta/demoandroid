@@ -13,7 +13,7 @@ Java SDK | 17
 Android |  Commandline tools: [commandlinetools-linux-11076708_latest.zip](https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip)
 Gradle  | [gradle-8.14.2-bin.zip](https://services.gradle.org/distributions/gradle-8.14.2-bin.zip)
 
->💡 Desarrollo realizado en **Debian 12** usando **VSCode** junto con un [**devcontainer personalizado**](https://github.com/programatta/devcontainers/tree/master/goebitendevcontainer).
+>💡 Desarrollo realizado en **Debian 12** usando **VSCode** junto con un [**devcontainer personalizado**](https://github.com/programatta/devcontainers/tree/master/goebitendevcontainer) y un docker auxiliar con los requisitos indicados [**go-android**](https://github.com/programatta/toolscontainers/tree/master/go-android).
 
 
 ## 🚀 Estructura general del proyecto.
