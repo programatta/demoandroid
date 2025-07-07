@@ -1,5 +1,7 @@
 # Go + Ebiten Android Demo Project.
 
+> ⚠️ Work in Progress: This guide is actively being improved and translated from Spanish. Feedback is welcome!
+
 This document provides a step-by-step guide on how to build an Android application (**APK**) using **Go + Ebiten**, and generate an **.aar** library without using **Android Studio**.
 
 > 📢 This guide is based on the tutorial by [Saffron Dionysius, Can You Really Develop Android Apps Without Android Studio?](https://medium.com/@sdiony/can-you-really-develop-android-apps-without-android-studio-cdd9b951de65)
