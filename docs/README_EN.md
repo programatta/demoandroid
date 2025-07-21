@@ -1,104 +1,101 @@
-# Proyecto Demo Go + Ebiten para Android.
-Este documento guía paso a paso cómo generar una aplicación Android (**APK**) usando **Go + Ebiten**, generando un archivo **.aar** sin necesidad de **Android Studio**.
+# Go + Ebiten Android Demo Project.
 
-> 📢 Este paso a paso está basado en el tutorial de [Saffron Dionysius, Can You Really Develop Android Apps Without Android Studio?](https://medium.com/@sdiony/can-you-really-develop-android-apps-without-android-studio-cdd9b951de65)
+> ⚠️ Work in Progress: This guide is actively being improved and translated from Spanish. Feedback is welcome!
 
-## ✅ Requisitos.
-Debemos tener en el entorno de desarrollo configurado lo siguiente:
-Herramienta | Versión utilizada
-------------|------------------
-Golang | 1.24
+This document provides a step-by-step guide on how to build an Android application (**APK**) using **Go + Ebiten**, and generate an **.aar** library without using **Android Studio**.
+
+> 📢 This guide is based on the tutorial by [Saffron Dionysius, Can You Really Develop Android Apps Without Android Studio?](https://medium.com/@sdiony/can-you-really-develop-android-apps-without-android-studio-cdd9b951de65)
+
+## ✅ Requirements.
+
+You should have the following configured in your development environment:
+
+Tool Used | Version
+----------|------------------
+Golang | 1.4
 Ebiten | github.com/hajimehoshi/ebiten/v2
 Java SDK | 17
-Android |  Commandline tools: [commandlinetools-linux-11076708_latest.zip](https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip)
-Gradle  | [gradle-8.14.2-bin.zip](https://services.gradle.org/distributions/gradle-8.14.2-bin.zip)
+Android Tools | [Commandline tools](https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip)
+Gradle | [gradle-8.14.2-bin.zip](https://services.gradle.org/distributions/gradle-8.14.2-bin.zip)
 
->💡 Desarrollo realizado en **Debian 12** usando **VSCode** junto con un [**devcontainer personalizado**](https://github.com/programatta/devcontainers/tree/master/goebitendevcontainer) y un docker auxiliar con los requisitos indicados [**go-android**](https://github.com/programatta/toolscontainers/tree/master/go-android).
+> 💡 Development was done on **Debian 12** using **VSCode** with a [**custom devcontainer**](https://github.com/programatta/devcontainers/tree/master/goebitendevcontainer) and a helper Docker container: [**go-android**](https://github.com/programatta/toolscontainers/tree/master/go-android).
 
-
-## 🚀 Estructura general del proyecto.
-La estructura que va a presentar el proyecto es la siguiente:
-~~~shell
+## 🚀 Project Structure Overview.
+The structure of the project will look like this:
+```shell
 .
 ├── bin
-│   ├── android-libs      # Librerías generadas (.aar, .jar)
-│   └── android           # Proyecto Android (Gradle)
-├── game                  # Código del juego (Ebiten)
-├── mobile                # Entrada para gomobile/ebitenmobile
+│   ├── android-libs      # Generated libraries (.aar, .jar)
+│   └── android           # Android project (Gradle)
+├── game                  # Game logic (Ebiten)
+├── mobile                # Entry point for gomobile/ebitenmobile
 ├── go.mod
 └── go.sum
-~~~
+```
 
-La vamos a ir construyendo paso a paso.
+We’ll build this structure step by step.
 
-## 🕹️ Creación del proyecto Go con Ebiten.
-Creamos un modulo de android de la forma habitual y añadimos la librería ebiten.
+## 🕹️ Creating the Go Project with Ebiten.
+Initialize the Go module and add Ebiten:
 
-~~~shell
+```bash
 mkdir demoandroid
 cd demoandroid
 go mod init github.com/programatta/demoandroid
 go get github.com/hajimehoshi/ebiten/v2
-~~~
+```
 
-Vamos a crear un pequeño programa que pinte la pantalla de un color morado claro y un texto con `ebitenutil.DebugPrint()`.
+Create a `game` package to draw a purple screen with debug text:
 
-Creamos un paquete **game** que va acontener lo básico del juego, que es la pantalla morada.
-
-~~~shell
+```bash
 mkdir game
-~~~
+```
 
-y dentro del paquete creamos el fichero **game.go**:
+In `game/game.go`:
 
-~~~go
+```go
 package game
 
 import (
 	"image/color"
-
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 )
 
 type Game struct{}
 
 func NewGame() *Game {
-	return &Game{}
+  return &Game{}
 }
 
 // ----------------------------------------------------------------------------
-// Implementa Ebiten Game Interface
+// Implements Ebiten Game Interface
 // ----------------------------------------------------------------------------
-
-// Update realiza el cambio de estado si es necesario y permite procesar
-// eventos y actualizar su lógica.
-func (g *Game) Update() error {
-	return nil
+func (g *Game) Update() error { 
+  return nil 
 }
 
-// Draw dibuja el estado actual.
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.NRGBA{0xcf, 0xba, 0xf0, 0xff})
-  ebitenutil.DebugPrint(screen, "Hola Android desde Go!")
+	ebitenutil.DebugPrint(screen, "Hello Android from Go!")
 }
 
-// Layout determina el tamaño del canvas
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 	return outsideWidth, outsideHeight
 }
-~~~
+```
 
-Ahora solo tenemos implementada la interfáz de Ebiten Game, donde en la función **Draw()** establecemos el color morado claro.
+Now the Ebiten `Game` interface is implemented. The `Draw()` function renders the purple background.
 
-Para llevar nuestro juego a Android, vamos a creamos un paquete **mobile** que va a contener el punto de entrada del código golang para android cuando se generen las librerías nativas __*.so__.
+Next, we create a `mobile` package which contains the Go entry point for Android. This is where the native `.so` libraries will link from.
 
-~~~shell
+```bash
 mkdir mobile
-~~~
+```
 
-y dentro de ese paquete creamos fichero **main.go**:
+In `mobile/main.go`:
 
-~~~go
+```go
 package mobile
 
 import (
@@ -112,34 +109,38 @@ func init() {
 
 // At least one exported function is required by gomobile.
 func Dummy() {}
-~~~
+```
 
-Aquí la principal diferencia es que no llamamos a **ebiten.RunGame()**, sino a **mobile.SetGame()** y además se encuentra en una función **init()** no en una función **main()**.
+Note that we do not use `ebiten.RunGame()` but instead use `mobile.SetGame()` inside an `init()` function.
 
-Hasta este momento, la estructura de directorios del proyecto es la siguiente:
+At this point, the structure is:
 
-~~~shell
+```shell
 .
 ├── game
-│   └── game.go
+│   └── game.go
 ├── mobile
-│   └── main.go
+│   └── main.go
 ├── go.mod
 ├── go.sum
 └── README.md
-~~~
+```
 
-## 📦 Creación de la librería de Android.
-Para llevar nuestro juego a Android, el código **Go** debe ser compilado y transformado en librerías dinámicas **.so** y cargadas por **Java/Kotlin** a través de unas clases auxiliares, y este conjunto de ficheros son almacenados en un fichero **.aar** (android arquive).
+## 📦 Generating the Android Library (.aar).
+To generate the `.aar`, we use the `ebitenmobile` tool which builds on top of `gomobile`. Install it with:
 
-Este proceso se realiza gracias a la utilidad **ebitenmobile** que se apoya en **gomobile**, por lo que necesitamos instalar **ebitenmobile**:
-
-~~~shell
+```bash
 go install github.com/hajimehoshi/ebiten/v2/cmd/ebitenmobile@latest
-~~~
+```
 
-Una vez instalado, vamos a crear un directorio **bin/android-libs** donde dejaremos las librerías generadas por **ebitenmobile** para luego incluirlas en un proyecto android. La estructura nos va quedando así:
+Create a directory for the output libraries:
 
+```bash
+mkdir -p bin/android-libs
+
+```
+
+At this point, the structure is:
 ~~~shell
 .
 ├── bin
@@ -153,29 +154,38 @@ Una vez instalado, vamos a crear un directorio **bin/android-libs** donde dejare
 └── README.md
 ~~~
 
-Ejecutamos desde el raiz del proyecto **ebitenmobile** indicandole que va a ser para android, el identificador del paquete que va a tener la librería, donde lo vamos a dejar y de que paquete tomamos el punto de entrada:
+Generate the `.aar`:
 
-~~~shell
+```bash
 ebitenmobile bind -target android -javapkg com.programatta.games.demoandroid.corelib -o bin/android-libs/game.aar github.com/programatta/demoandroid/mobile
-~~~
+```
 
-Nota a tener en cuenta, es que no llamemos con el mismo nombre de paquete a la librería creada y al proyecto android que vamos a crear. En un principio si se puede, pero pueden aparecer conflictos por lo que en este ejemplo, la librería va a llevar el nombre de paquete **com.programatta.games.demoandroid.corelib** y el futuro proyecto android **com.programatta.games.demoandroid**.
+> ⚠️ Avoid using the same Java package name in the `.aar` and the Android project to prevent conflicts.
 
-Tras la ejecución, si ha ido todo bien, nos aparecerán dos ficheros en **bin/android-libs**:
-* game.aar
-* game-sources.jar
+Output:
 
-El fichero importante es **game.aar**, va a tener el código **Go** compilado en ficheros **.so** para las plataformas soportadas por android (arm64-v8a, armeabi-v7a, x86 y x86_64) bajo el directorio **jni**. Aparte contiene un fichero **classess.jar** (que es el **game-sources.jar** compilado) con las clases auxiliares que van a parmitir acceder al juego cargando el correspondiente **.so** según plataforma.
+```shell
+bin/android-libs/
+├── game.aar
+└── game-sources.jar
+```
 
-## 🛠️ Creación del proyecto Android (Gradle).
-Bajo el directorio **bin** vamos a crear uno nuevo llamado **android**:
+The `.aar` includes native `.so` libraries (arm64-v8a, armeabi-v7a, x86, x86\_64) under `jni/`, and a `classes.jar` compiled from `game-sources.jar`.
 
-~~~shell
+A bird's eye view of the outline process:
+
+![esquema-go-android](./images/esquema-go-android.png)
+
+## 🛠️ Creating the Android Project (Gradle).
+Under `bin`, create the Android directory:
+
+```bash
 mkdir bin/android
-~~~
+```
 
-Con lo que tenemos la estructura siguiente:
-~~~shell
+Project structure:
+
+```shell
 .
 ├── bin
 │   ├── android
@@ -189,15 +199,16 @@ Con lo que tenemos la estructura siguiente:
 ├── go.mod
 ├── go.sum
 └── README.md
-~~~
+```
 
-nos situamos en el directorio **bin/android** y creamos un projecto **Java** (no llega a ser **Android** ya que necesitaremos ir añadiendo directorios, archivos y alguna que otra modificación para que sea un proyecto **Android**) a través de **gradle**:
+Initialize a basic Java project with Gradle:
 
-~~~shell
+```bash
+cd bin/android
 gradle init --type java-application --dsl groovy --package com.programatta.games.demoandroid --project-name "android" --no-split-project --java-version 17 --use-defaults
-~~~
+```
 
-Al realizar esto, la estructura del directorio **android** se presenta así:
+Now, the java project structure is:
 ~~~shell
 .
 ├── app
@@ -230,61 +241,50 @@ Al realizar esto, la estructura del directorio **android** se presenta así:
 └── settings.gradle
 ~~~
 
-### 🪛 Cambios que necesitamos.
-Creamos el directorio **libs** dentro de **app** donde colocaremos la librería creada en el paso anterior **game.aar** y que usaremos para ir montando la vista de **Android**:
+And we need to do some changes to transform java project to android project.
 
-~~~shell
+Then:
+
+```bash
 mkdir app/libs
 cp ../android-libs/game.aar app/libs
-~~~
+```
 
-Renombramos el fichero **App.java** que se encuentra en **app/src/main/java/com/programatta/games/demoandroid** como **MainActivity.java** y lo mimso hacemos con el directorio **resources** que se encuentra en **app/src/main** y lo llamamos **res**:
+Rename `App.java` to `MainActivity.java` and `resources` to `res`:
 
-~~~shell
+```bash
 mv app/src/main/java/com/programatta/games/demoandroid/App.java app/src/main/java/com/programatta/games/demoandroid/MainActivity.java
 mv app/src/main/resources app/src/main/res
-~~~
+```
 
-Vamos a crear una vista que va a contener el juego y que va a heredar de **EbitenView**, creamos el fichero **EbitenViewWithHerrorHandling.java** en el mismo paquete que está **MainActivity.java**:
+Create the necessary layout and values directories:
 
-~~~shell
-touch app/src/main/java/com/programatta/games/demoandroid/EbitenViewWithErrorHandling.java
-~~~
+```bash
+mkdir -p app/src/main/res/layout
+mkdir -p app/src/main/res/values
+```
 
-Bajo el directorio **res** crearemos otros dos, directorios **layout** y **values** para la definición de la vista y colores:
+Add placeholder files:
 
-~~~shell
-mkdir app/src/main/res/layout
-mkdir app/src/main/res/values
-~~~
-
-En **layout** creamos el fichero **activity_main.xml** y en **values** creamos **colors.xml** y **styles.xml**:
-
-~~~shell
+```bash
 touch app/src/main/res/layout/activity_main.xml
-touch app/src/main/res/values/colors.xml       
+
+touch app/src/main/res/values/colors.xml
+
 touch app/src/main/res/values/styles.xml
-~~~
 
-Añadimos el fichero **AndroidManifest.xml** en **app/src/main**:
-
-~~~shell
 touch app/src/main/AndroidManifest.xml
-~~~
 
-Añadimos el fichero **build.gradle** en el raiz del proyecto android:
-~~~shell
+touch app/src/main/java/com/programatta/games/demoandroid/EbitenViewWithErrorHandling.java
+
 touch build.gradle
-~~~
 
-Y finalmente  eliminamos el directorio de **test**, no lo vamos a necesitar por ahora:
+rm -rf app/src/test
+```
 
-~~~shell
-rm -rf app/src/test 
-~~~
+Final structure:
 
-Con todo esto, tenemos la siguiente estructura del proyecto android:
-~~~shell
+```shell
 .
 ├── app
 │   ├── build.gradle
@@ -316,12 +316,11 @@ Con todo esto, tenemos la siguiente estructura del proyecto android:
 ├── gradlew
 ├── gradlew.bat
 └── settings.gradle
-~~~
+```
 
-Una vez visto esto, vamos rellenando/modificando los siguientes ficheros:
+Now, we write or modify these files:
 
 #### 📝 gradle.properties
-Este fichero lo dejamos de esta manera:
 ~~~properties
 # This file was generated by the Gradle 'init' task.
 # https://docs.gradle.org/current/userguide/build_environment.html#sec:gradle_configuration_properties
@@ -399,7 +398,7 @@ dependencies {
   // Dependencias estándar de Android
   implementation 'androidx.appcompat:appcompat:1.7.0'
  
-  // ¡Aquí es donde añades tu AAR!
+  // Here adds your AAR file!
   implementation files('libs/game.aar')
  
   // This line is needed to resolve a mysterious compilation error.
@@ -409,9 +408,9 @@ dependencies {
 
 // Apply a specific Java toolchain to ease working on different environments.
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+  toolchain {
+    languageVersion = JavaLanguageVersion.of(17)
+  }
 }
 ~~~
 
@@ -506,7 +505,6 @@ class EbitenViewWithErrorHandling extends EbitenView {
 }
 ~~~
 
-
 #### 📝 app/src/main/layout/activity_main.xml
 ~~~xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -550,41 +548,41 @@ class EbitenViewWithErrorHandling extends EbitenView {
 </resources>
 ~~~
 
-## Generación de APK y/o AAB.
-Una vez finalizado todos estos añadidos y cambios, pedimos a **cradle** que complete la configuración que necesita ejecutando el script **gradlew**:
-~~~shell
+## 🧪 Compiling the APK and/or AAB.
+
+Initialize the Gradle system:
+
+```bash
 ./gradlew tasks
-~~~
+```
 
-### APK de debug.
-Una vez que finalice el proceso, si no ha habido ningún error, ya podemos crear el **apk** de debug:
-Para debug:
-~~~shell
+### Build the debug APK.
+```bash
 ./gradlew assembleDebug
-~~~
+```
 
-El **apk** generado lo encontramos en **app/build/outputs/apk/debug**
+The APK will be found at **app/build/outputs/apk/debug/app-debug.apk**
 
-### APK/AAB de release.
-Para generar binarios de producción, es necesairo primeramente tener una clave de release, y esta debe de estar en un llavero o **keystore**.
+### Build the release APK and/or AAB.
+To build release **apks** and/or **aabs** files you must first create a **keystore** file with the **keytool** command (included with **jdk**):
+```bash
+keytool -genkey -v -keystore keystore_name.keystore -alias key_alias_name -keyalg RSA -keysize 2048 -validity duration_in_days
+```
 
-Para crear el llavero, usamos la herramienta **keytool** que viene con el **jdk**:
-~~~shell
-keytool -genkey -v -keystore nombre_del_keystore.keystore -alias nombre_alias_clave -keyalg RSA -keysize 2048 -validity duracion_dias
-~~~
+This process will prompt you to enter a password. This password must be store in a safe place, as it will be required to sign the **apk** and/or **aab** files.
 
-En el proceso, se pedirá la contraseña para el llavero. Hay que guardar en lugar seguro esta contraseña ya que será necesaria para firmar el **apk** y/o **aab**.
+To use the keystore file with **gradle**, you can add a file called **key.properties** in the root directory of the android project.
 
-Para usar el llavero con **gradle**, se puede añadir en el raiz del proyecto android un archivo **key.properties** y no se añade al control de versiones.
-El contenido de este fichero es:
+This file should not be added to version control:
+
 ~~~properties
-storeFile=nombre_del_keystore.keystore
-storePassword=clave_secreta
-keyAlias=nombre_alias_clave
-keyPassword=clave_secreta
+storeFile=keystore_name.keystore
+storePassword=secret_pasword
+keyAlias=key_alias_name
+keyPassword=secret_pasword
 ~~~
 
-Hacemos referencia a **key.properties** en el fichero **app/build.gradle** entre **plugins{}** y **android{}**:
+You can reference this file inside **app/build.gradle**, between the **plugins{}** and **android{}** blocks:
 ~~~gradle
 import java.util.Properties
 import java.io.FileInputStream
@@ -597,7 +595,7 @@ if(keystorePropertiesFile.exists()){
 }
 ~~~
 
-En la sección de **android{}** entre **defaultConfig{}** y **buildTypes{}** añadimos:
+Inside the **android{}** block, between **defaultConfig{}** and **buildTypes{}**, add the following:
 ~~~gradle
 signingConfigs {
   release {
@@ -611,7 +609,7 @@ signingConfigs {
 }
 ~~~
 
-En la sección **buildTypes{}** completamos con:
+Then, inside the **buildTypes{}** block, configure the release build:
 ~~~gradle
 buildTypes {
   release {
@@ -625,7 +623,8 @@ buildTypes {
 }
 ~~~
 
-Finalmente despues de **buildTypes{}** añadimos para crear el bundle de android **aab**:
+And finaly, add a **bundle** block (after **buildTypes{}**) to configure **aab** generation:
+To end after **buildTypes{}** section we add **bundle** section to create the **aab** file:
 ~~~gradle
 bundle {
   language {
@@ -641,7 +640,6 @@ bundle {
 ~~~
 
 #### 📝 app/build.gradle
-El fichero queda de la siguiente forma:
 ~~~gradle
 /*
  * This file was generated by the Gradle 'init' task.
@@ -658,7 +656,7 @@ plugins {
 import java.util.Properties
 import java.io.FileInputStream
 
-// Cargamos las propiedades del keystore.
+// Load keystore properties
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file("key.properties")
 if(keystorePropertiesFile.exists()){
@@ -729,19 +727,19 @@ java {
 }
 ~~~
 
-Para generar el **apk** de release, desde el raiz del proyecto android:
-~~~shell
+To build the release **apk**:
+```bash
 cd bin/android
 ./gradlew clean
 ./gradlew assembleRelease
-~~~
+```
 
-Para generar el **aab** de release, desde el raiz del proyecto android:
-~~~shell
+To build the release **aab**:
+```shell
 cd bin/android
 ./gradlew clean
 ./gradlew bundleRelease
-~~~
+```
 
-* El **apk** generado lo encontramos en **app/build/outputs/apk/release**.
-* El **aab** generado lo encontramos en **app/build/outputs/bundle/release**.
+* The **APK** will be found at **app/build/outputs/apk/release**.
+* The **AAB** will be found at **app/build/outputs/bundle/release**.

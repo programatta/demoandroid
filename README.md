@@ -4,8 +4,8 @@ This repository contains a step-by-step tutorial on how to build an Android `.aa
 
 🌍 Available in multiple languages:
 
-- 🇪🇸 [Español – Guía Completa](./README_ES.md)
-- 🇬🇧 [English – Full Guide](./README_EN.md) (Work in progress)
+- 🇪🇸 [Español – Guía Completa](./docs/README_ES.md)
+- 🇬🇧 [English – Full Guide](./docs/README_EN.md) (Work in progress)
 
 ---
 
