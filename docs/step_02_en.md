@@ -331,4 +331,4 @@ With this small change, we now have a consistent view in both  **desktop** and *
 
 Note that we get **two black bars** for image adjustment, but we’ll see how to resolve this in the following steps.
 
-You can check the code for this step in the [paso-02](https://github.com/programatta/demoandroid/tree/step-02) branch.
+You can check the code for this step in the [paso-02](https://github.com/programatta/demoandroid/tree/paso-02) branch.

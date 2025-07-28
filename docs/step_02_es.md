@@ -329,4 +329,4 @@ Con este pequeño cambio, ya tenemos una vista igual en **desktop** y **Android*
 
 A destacar que nos aparecen las dos bandas negras de ajueste de imagen, pero en los siguientes pasos vemos como resolver esto.
 
-Puedes consultar el código de este paso en la rama [paso-02](https://github.com/programatta/demoandroid/tree/step-02).
+Puedes consultar el código de este paso en la rama [paso-02](https://github.com/programatta/demoandroid/tree/paso-02).

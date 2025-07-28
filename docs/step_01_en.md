@@ -748,4 +748,4 @@ cd bin/android
 After installing the generated **APK** file on your Android device or emulator, the application will display the following screen:
 ![Aplicación en ejecución](./images/aplicacion_android.jpg)
 
-You can check the code for this step in the [paso-01](https://github.com/programatta/demoandroid/tree/step-01) branch.
+You can check the code for this step in the [paso-01](https://github.com/programatta/demoandroid/tree/paso-01) branch.
