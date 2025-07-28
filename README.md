@@ -4,8 +4,8 @@ This repository contains a step-by-step tutorial on how to build an Android `.aa
 
 🌍 Available in multiple languages:
 
-- 🇪🇸 [Español – Guía Completa](./docs/README_ES.md)
-- 🇬🇧 [English – Full Guide](./docs/README_EN.md) (Work in progress)
+- 🇪🇸 [Español – Guía Completa](./docs/steps_index_es.md) (En proceso)
+- 🇬🇧 [English – Full Guide](./docs/steps_index_en.md) (Work in progress)
 
 ---
 
@@ -13,6 +13,7 @@ This repository contains a step-by-step tutorial on how to build an Android `.aa
 - Generate **.aar** from Go code using **ebitenmobile**.
 - Create Android project from terminal using Gradle.
 - Adapt project structure for Android compatibility.
-- Build debug and release APKs.
+- Build debug and release APKs (and AAB).
+- Small demo using embedded assets, with display adjustment.
 
 > Developed in Debian 12 using VSCode and Docker-based devcontainers.

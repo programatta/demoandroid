@@ -753,3 +753,5 @@ cd bin/android
 ## Ejecución en Android.
 Una vez instalado el **APK** generado e instalado en el dispositivo/emulador obtenemos la siguiente pantalla:
 ![Aplicación en ejecución](./images/aplicacion_android.jpg)
+
+Puedes consultar el código de este paso en la rama [paso-01](https://github.com/programatta/demoandroid/tree/step-01).
