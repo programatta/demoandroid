@@ -749,3 +749,7 @@ cd bin/android
 
 * El **apk** generado lo encontramos en **app/build/outputs/apk/release**.
 * El **aab** generado lo encontramos en **app/build/outputs/bundle/release**.
+
+## Ejecución en Android.
+Una vez instalado el **APK** generado e instalado en el dispositivo/emulador obtenemos la siguiente pantalla:
+![Aplicación en ejecución](./images/aplicacion_android.jpg)

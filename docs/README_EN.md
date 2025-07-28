@@ -743,3 +743,7 @@ cd bin/android
 
 * The **APK** will be found at **app/build/outputs/apk/release**.
 * The **AAB** will be found at **app/build/outputs/bundle/release**.
+
+## Running the Application on Android
+After installing the generated **APK** file on your Android device or emulator, the application will display the following screen:
+![Aplicación en ejecución](./images/aplicacion_android.jpg)
