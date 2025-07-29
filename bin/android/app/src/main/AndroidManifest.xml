@@ -10,6 +10,7 @@
       android:name=".MainActivity"
       android:label="Demo Android"
       android:screenOrientation="portrait"
+      android:immersive="true"
       android:launchMode="singleInstance">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />

@@ -32,6 +32,7 @@ android {
 dependencies {
   // Dependencias estándar de Android
   implementation 'androidx.appcompat:appcompat:1.7.0'
+  implementation 'androidx.core:core:1.13.1'
   // ¡Aquí es donde añades tu AAR!
   implementation files('libs/game.aar')
   // This line is needed to resolve a mysterious compilation error.

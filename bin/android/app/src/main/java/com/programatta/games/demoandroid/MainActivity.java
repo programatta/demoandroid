@@ -3,20 +3,36 @@
  */
 package com.programatta.games.demoandroid;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import go.Seq;
 import com.programatta.games.demoandroid.corelib.mobile.EbitenView;
 
 
 public class MainActivity extends AppCompatActivity {
+  private static final String TAG = "DemoAndroid"; 
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
     System.out.println("MainActivity: DEBUG: onCreate iniciado.");
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // API 30+
+        // Usamos WindowInsetsController para Android 11 (API 30) y superior
+        hideSystemBarsApi30();
+    } else {
+        // Para APIs anteriores, seguiríamos usando setSystemUiVisibility()
+        hideSystemBarsLegacy();
+    }
+
 
     Seq.setContext(getApplicationContext());
     System.out.println("MainActivity: DEBUG: Seq.setContext() llamado.");
@@ -42,5 +58,57 @@ public class MainActivity extends AppCompatActivity {
 
   private EbitenView getEbitenView() {
       return (EbitenView)this.findViewById(R.id.ebitenview);
+  }
+
+  private int hideSystemBars() {
+    int uiOptions = 
+      View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY        // Este es el flag clave para el modo "pegajoso"
+    | View.SYSTEM_UI_FLAG_FULLSCREEN
+    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION         // Oculta la barra de navegación
+    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION; // Oculta la barra de estado
+    return uiOptions;
+  }
+
+  //----------------------------------------------------------------------------------------------
+  // Métodos para API 30+ (Android 11 y superior)
+  //----------------------------------------------------------------------------------------------
+  private void hideSystemBarsApi30() {
+    // Get the WindowInsetsControllerCompat instance.
+    // It handles the underlying platform API differences.
+    WindowInsetsControllerCompat insetsController = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
+    if (insetsController == null) {
+      return;
+    }
+
+    // 1. Set the behavior for how bars reappear (sticky immersive)
+    insetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+
+    // 2. Hide the system bars using the COMPAT type
+    insetsController.hide(WindowInsetsCompat.Type.systemBars());
+  }
+
+  //----------------------------------------------------------------------------------------------
+  // Métodos para APIs Legacy (menos de 30)
+  //----------------------------------------------------------------------------------------------
+  @SuppressWarnings("deprecation") // Suprimimos la advertencia de deprecación
+  private void hideSystemBarsLegacy() {
+    // Establece los flags de visibilidad del sistema
+    View decorView = getWindow().getDecorView();
+    decorView.setSystemUiVisibility(hideSystemBars());
+
+    // Escuchar los cambios en la visibilidad de la UI para re-aplicar los flags
+    // si se pierden (ej. al aparecer el teclado).
+    decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+      @Override
+      public void onSystemUiVisibilityChange(int visibility) {
+        if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+          // Si el flag FULLSCREEN se ha limpiado, significa que la barra
+          // de estado es visible. Re-aplicamos los flags.
+          decorView.setSystemUiVisibility(hideSystemBars());
+        }
+      }
+    });
   }
 }
