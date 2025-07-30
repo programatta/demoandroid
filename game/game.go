@@ -2,6 +2,7 @@ package game
 
 import (
 	"image/color"
+	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text/v2"
@@ -11,17 +12,22 @@ import (
 )
 
 type Game struct {
-	textFace *text.GoTextFace
-	emojis   []*ebiten.Image
+	textFace     *text.GoTextFace
+	emojis       []*ebiten.Image
+	offscreen    *ebiten.Image
+	scaled       bool
+	offscreenOpt *ebiten.DrawImageOptions
 }
 
 func NewGame() *Game {
 	textFace := utils.LoadEmbeddedFont(32)
 	emojis := utils.LoadEmojiImages()
+	offscreen := ebiten.NewImage(config.GameWindowWidth, config.GameWindowHeight)
 
 	return &Game{
-		textFace: textFace,
-		emojis:   emojis,
+		textFace:  textFace,
+		emojis:    emojis,
+		offscreen: offscreen,
 	}
 }
 
@@ -38,13 +44,34 @@ func (g *Game) Update() error {
 // Draw dibuja el estado actual.
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.NRGBA{0xcf, 0xba, 0xf0, 0xff})
-	g.drawText(screen)
-	g.drawEmojis(screen)
+
+	g.offscreen.Clear()
+	g.offscreen.Fill(color.NRGBA{0xcf, 0xba, 0xf0, 0xff})
+
+	g.drawText(g.offscreen)
+	g.drawEmojis(g.offscreen)
+
+	screen.DrawImage(g.offscreen, g.offscreenOpt)
 }
 
 // Layout determina el tamaño del canvas
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return config.GameWindowWidth, config.GameWindowHeight
+	if !g.scaled {
+		g.scaled = true
+
+		scaleX := float64(outsideWidth) / float64(config.GameWindowWidth)
+		scaleY := float64(outsideHeight) / float64(config.GameWindowHeight)
+		scale := math.Min(scaleX, scaleY)
+
+		g.offscreenOpt = &ebiten.DrawImageOptions{}
+		g.offscreenOpt.GeoM.Scale(scale, scale)
+		g.offscreenOpt.GeoM.Translate(
+			(float64(outsideWidth)-float64(g.offscreen.Bounds().Dx())*scale)/2,
+			(float64(outsideHeight)-float64(g.offscreen.Bounds().Dy())*scale)/2,
+		)
+		g.offscreenOpt.Filter = ebiten.FilterLinear
+	}
+	return outsideWidth, outsideHeight
 }
 
 func (g *Game) drawText(screen *ebiten.Image) {
