@@ -169,7 +169,7 @@ El fichero importante es **game.aar**, va a tener el código **Go** compilado en
 
 Un resumen a vista de pájado del esquema del proceso:
 
-![esquema-go-android](./images/esquema-go-android.png)
+![esquema-go-android](./images/paso_01_esquema-go-android.png)
 
 ## 🛠️ Creación del proyecto Android (Gradle).
 Bajo el directorio **bin** vamos a crear uno nuevo llamado **android**:
@@ -752,6 +752,6 @@ cd bin/android
 
 ## Ejecución en Android.
 Una vez instalado el **APK** generado e instalado en el dispositivo/emulador obtenemos la siguiente pantalla:
-![Aplicación en ejecución](./images/aplicacion_android.jpg)
+![Aplicación en ejecución](./images/paso_01_aplicacion_android.jpg)
 
 Puedes consultar el código de este paso en la rama [paso-01](https://github.com/programatta/demoandroid/tree/paso-01).

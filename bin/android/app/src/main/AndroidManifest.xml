@@ -4,12 +4,13 @@
     android:supportsRtl="true"
     android:allowBackup="true"
     android:label="Demo Android"
-    android:theme="@style/AppTheme">
+    android:theme="@style/SplashTheme">
     <activity 
       android:exported="true"
       android:name=".MainActivity"
       android:label="Demo Android"
       android:screenOrientation="portrait"
+      android:immersive="true"
       android:launchMode="singleInstance">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />

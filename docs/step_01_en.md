@@ -174,7 +174,7 @@ The `.aar` includes native `.so` libraries (arm64-v8a, armeabi-v7a, x86, x86\_64
 
 A bird's eye view of the outline process:
 
-![esquema-go-android](./images/esquema-go-android.png)
+![esquema-go-android](./images/paso_01_esquema-go-android.png)
 
 ## 🛠️ Creating the Android Project (Gradle).
 Under `bin`, create the Android directory:
@@ -746,6 +746,6 @@ cd bin/android
 
 ## Running the Application on Android
 After installing the generated **APK** file on your Android device or emulator, the application will display the following screen:
-![Aplicación en ejecución](./images/aplicacion_android.jpg)
+![Aplicación en ejecución](./images/paso_01_aplicacion_android.jpg)
 
 You can check the code for this step in the [paso-01](https://github.com/programatta/demoandroid/tree/paso-01) branch.
