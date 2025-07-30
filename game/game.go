@@ -43,10 +43,10 @@ func (g *Game) Update() error {
 
 // Draw dibuja el estado actual.
 func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.NRGBA{0xcf, 0xba, 0xf0, 0xff})
+	screen.Fill(color.NRGBA{0x7a, 0x5b, 0x9c, 0xff})
 
 	g.offscreen.Clear()
-	g.offscreen.Fill(color.NRGBA{0xcf, 0xba, 0xf0, 0xff})
+	g.offscreen.Fill(color.NRGBA{0x7a, 0x5b, 0x9c, 0xff})
 
 	g.drawText(g.offscreen)
 	g.drawEmojis(g.offscreen)
