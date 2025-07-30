@@ -8,6 +8,7 @@ Each step includes technical explanations, code examples, and a specific branch 
 |Introduction|Creating the Android library, setting up the Android project with Gradle, and generating debug and release APK/AAB files|paso-01|[▶️](./step_01_en.md)|
 |Demo with embedded assets|Demo showcasing embedded assets and adaptation to the Android device screen|paso-02|[▶️](./step_02_en.md)|
 |Immersive mode and Splash screen|Functionality and configuration are added to enable immersive mode and a splash screen to avoid the white screen while Go loads|paso-03-*|[▶️](./step_03_en.md)|
+|Removing black bars|Functionality and configuration added to eliminate black bars and enable painting in the notch area|paso-04-*|[▶️](./step_04_en.md)|
 
 > 🔔 **Branches with an asterisk**
 >
